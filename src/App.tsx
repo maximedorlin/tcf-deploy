@@ -48,7 +48,7 @@ const App: React.FC = () => {
   const [subTotals, setSubTotals] = useState<Record<string, SubTotal>>({});
   const [isLocked, setIsLocked] = useState(false);
   const [isTimeUp, setIsTimeUp] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(40 * 60); // 40 minutes en secondes
+  const [timeLeft, setTimeLeft] = useState(35 * 60); // 40 minutes en secondes
   const [timerActive, setTimerActive] = useState(false);
   const pdfRef = useRef<HTMLDivElement>(null);
 
@@ -184,12 +184,12 @@ const App: React.FC = () => {
         fillColor: [245, 245, 245]
       },
       columnStyles: {
-        0: { cellWidth: 15, lineWidth: 0.3 },
-        1: { cellWidth: 20, lineWidth: 0.3 },
-        2: { cellWidth: 20, lineWidth: 0.3 },
-        3: { cellWidth: 20, lineWidth: 0.3 },
-        4: { cellWidth: 20, lineWidth: 0.3 },
-        5: { cellWidth: 30, lineWidth: 0.3 }
+        0: { cellWidth: 24, lineWidth: 0.2 },
+        1: { cellWidth: 30, lineWidth: 0.2 },
+        2: { cellWidth: 30, lineWidth: 0.2 },
+        3: { cellWidth: 30, lineWidth: 0.2 },
+        4: { cellWidth: 30, lineWidth: 0.2 },
+        5: { cellWidth: 50, lineWidth: 0.2 }
       },
       tableLineWidth: 0.2,
       tableLineColor: [50, 50, 50],
