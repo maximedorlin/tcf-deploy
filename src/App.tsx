@@ -42,13 +42,13 @@ const App: React.FC = () => {
   const [title, setTitle] = useState("");
   const [nom, setNom] = useState("");
   const [answers, setAnswers] = useState<AnswerRow[]>(
-    Array.from({ length: 40 }, () => ({ selected: "", correct: "" }))
+    Array.from({ length: 39 }, () => ({ selected: "", correct: "" }))
   );
   const [score, setScore] = useState<{ obtained: number; max: number } | null>(null);
   const [subTotals, setSubTotals] = useState<Record<string, SubTotal>>({});
   const [isLocked, setIsLocked] = useState(false);
   const [isTimeUp, setIsTimeUp] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(35 * 60); // 40 minutes en secondes
+  const [timeLeft, setTimeLeft] = useState(35 * 60); // 35 minutes en secondes
   const [timerActive, setTimerActive] = useState(false);
   const pdfRef = useRef<HTMLDivElement>(null);
 
