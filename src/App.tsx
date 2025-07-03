@@ -3,23 +3,24 @@ import jsPDF from "jspdf";
 import autoTable, { HookData, type UserOptions } from "jspdf-autotable";
 import * as XLSX from "xlsx";
 
+// Correction des poids pour le calcul du score
 const weights = (index: number): number => {
-  if (index >= 1 && index <= 4) return 4;
-  if (index >= 5 && index <= 10) return 8;
+  if (index >= 1 && index <= 4) return 3;
+  if (index >= 5 && index <= 10) return 9;
   if (index >= 11 && index <= 19) return 15;
   if (index >= 20 && index <= 29) return 21;
-  if (index >= 30 && index <= 35) return 27;
+  if (index >= 30 && index <= 35) return 26; // Corrigé de 27 à 26
   if (index >= 36 && index <= 39) return 33;
   return 0;
 };
 
 const groupRanges = [
-  { label: "1-4", start: 1, end: 4 },
-  { label: "5-10", start: 5, end: 10 },
-  { label: "11-19", start: 11, end: 19 },
-  { label: "20-29", start: 20, end: 29 },
-  { label: "30-35", start: 30, end: 35 },
-  { label: "36-39", start: 36, end: 39 },
+  { label: "1-4", start: 1, end: 4, points: 3 },
+  { label: "5-10", start: 5, end: 10, points: 9 },
+  { label: "11-19", start: 11, end: 19, points: 15 },
+  { label: "20-29", start: 20, end: 29, points: 21 },
+  { label: "30-35", start: 30, end: 35, points: 26 },
+  { label: "36-39", start: 36, end: 39, points: 33 },
 ];
 
 const options = ["A", "B", "C", "D"];
@@ -27,6 +28,7 @@ const options = ["A", "B", "C", "D"];
 interface AnswerRow {
   selected: string;
   correct: string;
+  number: number; // Ajout du numéro réel (1-39)
 }
 
 interface SubTotal {
@@ -42,7 +44,11 @@ const App: React.FC = () => {
   const [title, setTitle] = useState("");
   const [nom, setNom] = useState("");
   const [answers, setAnswers] = useState<AnswerRow[]>(
-    Array.from({ length: 39 }, () => ({ selected: "", correct: "" }))
+    Array.from({ length: 39 }, (_, i) => ({
+      selected: "",
+      correct: "",
+      number: i + 1 // Numéro réel de 1 à 39
+    }))
   );
   const [score, setScore] = useState<{ obtained: number; max: number } | null>(null);
   const [subTotals, setSubTotals] = useState<Record<string, SubTotal>>({});
@@ -88,7 +94,6 @@ const App: React.FC = () => {
   };
 
   const updateCorrect = (rowIndex: number, correct: string) => {
-    // Toujours autorisé à modifier les bonnes réponses
     setAnswers((prev) =>
       prev.map((row, i) => (i === rowIndex ? { ...row, correct } : row))
     );
@@ -103,10 +108,11 @@ const App: React.FC = () => {
       let groupScore = 0;
       let groupMax = 0;
 
-      for (let i = group.start; i <= group.end; i++) {
-        const w = weights(i);
+      for (let num = group.start; num <= group.end; num++) {
+        const w = weights(num);
         groupMax += w;
-        if (answers[i] && answers[i].correct && answers[i].selected === answers[i].correct) {
+        const answer = answers.find(a => a.number === num);
+        if (answer && answer.correct && answer.selected === answer.correct) {
           groupScore += w;
         }
       }
@@ -147,14 +153,14 @@ const App: React.FC = () => {
     doc.setFont("helvetica", "bold");
     doc.text(`${nom} - ${title}` || "Note-TCF", 105, 15, { align: "center" });
 
-    // Tableau des réponses
+    // Tableau des réponses - Utilisation du numéro réel
     const headers: string[][] = [["N°", "A", "B", "C", "D", "Bonne réponse"]];
-    const data: (string | number)[][] = answers.map((row, index) => [
-      index,
-      row.selected === "A" ? `A${index}` : "",
-      row.selected === "B" ? `B${index}` : "",
-      row.selected === "C" ? `C${index}` : "",
-      row.selected === "D" ? `D${index}` : "",
+    const data: (string | number)[][] = answers.map((row) => [
+      row.number, // Utilisation du numéro réel (1-39)
+      row.selected === "A" ? "A" : "",
+      row.selected === "B" ? "B" : "",
+      row.selected === "C" ? "C" : "",
+      row.selected === "D" ? "D" : "",
       row.correct
     ]);
 
@@ -163,8 +169,8 @@ const App: React.FC = () => {
       body: data,
       startY: 25,
       styles: {
-        fontSize: 10,
-        cellPadding: 4,
+        fontSize: 7,
+        cellPadding: 3,
         valign: "middle",
         halign: "center",
         lineWidth: 0.1,
@@ -184,17 +190,16 @@ const App: React.FC = () => {
         fillColor: [245, 245, 245]
       },
       columnStyles: {
-        0: { cellWidth: 24, lineWidth: 0.2 },
+        0: { cellWidth: 15, lineWidth: 0.2 },
         1: { cellWidth: 30, lineWidth: 0.2 },
         2: { cellWidth: 30, lineWidth: 0.2 },
         3: { cellWidth: 30, lineWidth: 0.2 },
         4: { cellWidth: 30, lineWidth: 0.2 },
-        5: { cellWidth: 50, lineWidth: 0.2 }
+        5: { cellWidth: 47, lineWidth: 0.2 }
       },
       tableLineWidth: 0.2,
       tableLineColor: [50, 50, 50],
       didDrawPage: (_data: HookData) => {
-        // CORRECTION: Utilisation de la méthode officielle
         const pageCount = doc.getNumberOfPages();
         doc.setFontSize(10);
         for (let i = 1; i <= pageCount; i++) {
@@ -202,7 +207,6 @@ const App: React.FC = () => {
           doc.text(`Page ${i}/${pageCount}`, 105, 287, { align: "center" });
         }
       }
-
     };
 
     autoTable(doc, tableConfig);
@@ -231,13 +235,13 @@ const App: React.FC = () => {
     const { total, totalMax, subtotals } = calculate(answers);
     const workbook = XLSX.utils.book_new();
 
-    // Feuille des réponses
-    const answerData = answers.map((row, index) => ({
-      "N°": index,
-      "Réponse A": row.selected === "A" ? `A${index}` : "",
-      "Réponse B": row.selected === "B" ? `B${index}` : "",
-      "Réponse C": row.selected === "C" ? `C${index}` : "",
-      "Réponse D": row.selected === "D" ? `D${index}` : "",
+    // Feuille des réponses - Utilisation du numéro réel
+    const answerData = answers.map((row) => ({
+      "N°": row.number, // Utilisation du numéro réel (1-39)
+      "Réponse A": row.selected === "A" ? "A" : "",
+      "Réponse B": row.selected === "B" ? "B" : "",
+      "Réponse C": row.selected === "C" ? "C" : "",
+      "Réponse D": row.selected === "D" ? "D" : "",
       "Bonne réponse": row.correct
     }));
 
@@ -266,7 +270,7 @@ const App: React.FC = () => {
 
     XLSX.utils.book_append_sheet(workbook, answerSheet, "Réponses");
 
-    // Feuille des résultats avec centrage
+    // Feuille des résultats
     const resultData: (string | number)[][] = [
       ["RÉSULTATS", "", "", "", ""],
       ["Groupe", "Score", "Max", "Pourcentage", ""]
@@ -295,7 +299,7 @@ const App: React.FC = () => {
 
     const resultSheet = XLSX.utils.aoa_to_sheet(resultData);
 
-    // Appliquer le centrage aux résultats
+    // Centrage des résultats
     const resultRange = XLSX.utils.decode_range(resultSheet['!ref']!);
     for (let R = resultRange.s.r; R <= resultRange.e.r; ++R) {
       for (let C = resultRange.s.c; C <= resultRange.e.c; ++C) {
@@ -410,13 +414,13 @@ const App: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {answers.map((row, rowIndex) => (
+                  {answers.map((row, index) => (
                     <tr
-                      key={rowIndex}
-                      className={isLocked ? "bg-gray-200" : (rowIndex % 2 === 0 ? "bg-gray-50" : "bg-white")}
+                      key={index}
+                      className={isLocked ? "bg-gray-200" : (index % 2 === 0 ? "bg-gray-50" : "bg-white")}
                     >
                       <td className="border border-gray-300 px-2 py-2 sm:px-4 sm:py-3 font-semibold">
-                        {rowIndex}
+                        {row.number} {/* Affichage du numéro réel */}
                       </td>
                       {options.map((opt) => (
                         <td
@@ -427,10 +431,10 @@ const App: React.FC = () => {
                           <div className="flex justify-center">
                             <input
                               type="radio"
-                              name={`row-${rowIndex}`}
+                              name={`row-${index}`}
                               value={opt}
                               checked={row.selected === opt}
-                              onChange={() => updateSelection(rowIndex, opt)}
+                              onChange={() => updateSelection(index, opt)}
                               className={`w-4 h-4 sm:w-5 sm:h-5 text-blue-600 ${isTimeUp ? "opacity-50 cursor-not-allowed" : ""
                                 }`}
                               disabled={isTimeUp}
@@ -441,7 +445,7 @@ const App: React.FC = () => {
                       <td className="border border-gray-300 px-1 py-1 sm:px-2 sm:py-2">
                         <select
                           value={row.correct}
-                          onChange={(e) => updateCorrect(rowIndex, e.target.value)}
+                          onChange={(e) => updateCorrect(index, e.target.value)}
                           className="w-full p-1 sm:p-2 text-xs sm:text-sm border border-gray-300 rounded-md bg-white focus:ring-2 focus:ring-blue-500"
                         >
                           <option value="">--</option>
