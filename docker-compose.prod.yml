@@ -1,0 +1,14 @@
+version: "3.9"
+
+services:
+  app:
+    build: .
+    container_name: tcf_deploy
+    volumes:
+      - .:/app/
+      - /app/node_modules
+    ports:
+      - 10014:3000
+    environment:
+      - NODE_ENV=production
+    entrypoint: ["sh", "entrypoint.sh"]
