@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Download, FileText, Table } from "lucide-react";
+import { FileText, Table } from "lucide-react";
 import { PDFExporter, ExcelExporter } from "@/utils/exporters";
 import { AnswerRow } from "@/utils/types";
 

@@ -1,7 +1,7 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
-import { AnswerRow, SubTotal } from './types';
+import { AnswerRow } from './types';
 import { calculateScores } from './calculations';
 
 export class PDFExporter {
