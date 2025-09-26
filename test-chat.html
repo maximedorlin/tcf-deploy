@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chatbot Simple</title>
+  <style>
+    #chat-container {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    #user-input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="chat-container"></div>
+  <input type="text" id="user-input" placeholder="Entrez votre message...">
+  <button onclick="sendMessage()">Envoyer</button>
+
+  <script>
+    // Tableau des réponses prédéfinies
+    const chatbotResponses = {
+      "hello": "Bonjour ! Comment puis-je t'aider aujourd'hui ? 😊",
+      "help": "Voici mes capacités : répondre à des questions simples, vous guider dans les projets JavaScript...",
+      "code": "Je peux vous aider à écrire du code JavaScript ! Exemple : `console.log('Bonjour');`",
+      "exit": "Au revoir ! Merci d'avoir utilisé ce chatbot."
+    };
+
+    // Initialisation du chat
+    const chatContainer = document.getElementById('chat-container');
+    const userInput = document.getElementById('user-input');
+
+    function sendMessage() {
+      const message = userInput.value.trim();
+      if (message) {
+        // Ajouter le message utilisateur
+        addMessage('Vous', message, 'user');
+        userInput.value = '';
+
+        // Résponse du chatbot
+        const response = getChatbotResponse(message);
+        addMessage('Chatbot', response, 'bot');
+
+        // Afficher la réponse
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+      }
+    }
+
+    function getChatbotResponse(message) {
+      const lowerMessage = message.toLowerCase();
+      for (const [keyword, response] of Object.entries(chatbotResponses)) {
+        if (lowerMessage.includes(keyword)) {
+          return response;
+        }
+      }
+      return "Désolé, je n'ai pas compris votre demande. Pouvez-vous réessayer ?";
+    }
+
+    function addMessage(sender, text, type) {
+      const messageDiv = document.createElement('div');
+      messageDiv.classList.add('message');
+      messageDiv.style.backgroundColor = type === 'user' ? '#e9ecef' : '#d4edda';
+      messageDiv.innerHTML = `<strong>${sender}:</strong> ${text}`;
+      chatContainer.appendChild(messageDiv);
+    }
+
+    // Initialisation
+    addMessage('Chatbot', "Bonjour ! Je suis votre chatbot JavaScript. Comment puis-je vous aider ? 😊", 'bot');
+  </script>
+</body>
+</html>

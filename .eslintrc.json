@@ -11,12 +11,15 @@
       }
     ],
     "@typescript-eslint/no-explicit-any": "off",
-    "react-hooks/rules-of-hooks": [
-      "error",
-      {
-        "checkFunctionScope": false, // Disable checks for non-component functions
-        "ignoreHooksInNonReactFunctions": true // Allow hooks in non-component functions
-      }
-    ]
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
+    "react/no-unescaped-entities": "off"
+    // "react-hooks/rules-of-hooks": [
+    //   "error",
+    //   {
+    //     "checkFunctionScope": false, // Disable checks for non-component functions
+    //     "ignoreHooksInNonReactFunctions": true // Allow hooks in non-component functions
+    //   }
+    // ]
   }
 }
